@@ -1,14 +1,7 @@
-# Gerência de Configuração de Software — Tarefa 2
-**Disciplina:** 4815207 – Gerência de Configuração de Software  
-**Professor:** Fabrício  
-**Semestre:** 2026/A  
-**Repositório:** https://github.com/duduardo654/pequena-aplicacao-vm
-
----
-
 ## Sobre a Aplicação
+Repositório: https://github.com/duduardo654/pequena-aplicacao-vm.git
 
-Aplicação web desenvolvida em Python com Flask para registro de receitas (doces e salgadas), com autenticação de usuário e CRUD completo.
+Aplicação web desenvolvida em Python com Flask para registro de receitas (doces e salgadas), com autenticação de usuário e CRUD.
 
 **Tecnologias utilizadas:**
 - Python 3 + Flask
@@ -41,28 +34,6 @@ Aplicação web desenvolvida em Python com Flask para registro de receitas (doce
 | senha | VARCHAR(255) NOT NULL | Senha de acesso |
 | situacao | CHAR(1) DEFAULT 'a' CHECK ('a','i') | 'a' = Ativo, 'i' = Inativo |
 
-### Scripts DDL
-
-```sql
-CREATE TABLE receita (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(255) NOT NULL,
-    descricao TEXT,
-    data_registro DATE NOT NULL DEFAULT CURRENT_DATE,
-    custo NUMERIC(10,2),
-    tipo_receita CHAR(1) CHECK (tipo_receita IN ('s', 'd'))
-);
-
-CREATE TABLE usuario (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(255) NOT NULL,
-    login VARCHAR(100) NOT NULL UNIQUE,
-    senha VARCHAR(255) NOT NULL,
-    situacao CHAR(1) NOT NULL DEFAULT 'a' CHECK (situacao IN ('a', 'i'))
-);
-```
-
----
 
 ## Interfaces Desenvolvidas
 
@@ -109,18 +80,6 @@ sudo systemctl status postgresql
 **5. Instalar Flask e o driver do PostgreSQL:**
 ```bash
 pip install flask psycopg --break-system-packages
-```
-
-### Configuração do Banco de Dados
-
-```bash
-sudo -u postgres psql
-```
-
-```sql
-CREATE DATABASE db_manager_conf;
-ALTER USER postgres WITH PASSWORD 'postgres123';
-\q
 ```
 
 ### Implantação da Aplicação
