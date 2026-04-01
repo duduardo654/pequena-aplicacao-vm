@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ 'Editar' if receita else 'Nova' }} Receita</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">{{ 'Editar' if receita else 'Nova' }} Receita</h4>
+                        <form method="POST">
+                            <div class="mb-3">
+                                <label class="form-label">Nome</label>
+                                <input type="text" name="nome" class="form-control" value="{{ receita[1] if receita else '' }}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Descrição</label>
+                                <textarea name="descricao" class="form-control" rows="3">{{ receita[2] if receita else '' }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Data de Registro</label>
+                                <input type="date" name="data_registro" class="form-control" value="{{ receita[3] if receita else '' }}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Custo</label>
+                                <input type="number" step="0.01" name="custo" class="form-control" value="{{ receita[4] if receita else '' }}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Tipo</label>
+                                <select name="tipo_receita" class="form-select">
+                                    <option value="s" {{ 'selected' if receita and receita[5] == 's' }}>Salgado</option>
+                                    <option value="d" {{ 'selected' if receita and receita[5] == 'd' }}>Doce</option>
+                                </select>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">Salvar</button>
+                                <a href="{{ url_for('listar_receitas') }}" class="btn btn-outline-secondary">Cancelar</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
