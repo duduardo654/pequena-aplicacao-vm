@@ -14,6 +14,34 @@
                 <a href="{{ url_for('logout') }}" class="btn btn-outline-secondary btn-sm">Sair</a>
             </div>
         </div>
+
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('listar_receitas') }}" class="row g-2 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label mb-1">Data início</label>
+                        <input type="date" name="data_inicio" class="form-control form-control-sm" value="{{ data_inicio }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label mb-1">Data fim</label>
+                        <input type="date" name="data_fim" class="form-control form-control-sm" value="{{ data_fim }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label mb-1">Tipo</label>
+                        <select name="tipo" class="form-select form-select-sm">
+                            <option value="">Todos</option>
+                            <option value="s" {{ 'selected' if tipo == 's' }}>Salgado</option>
+                            <option value="d" {{ 'selected' if tipo == 'd' }}>Doce</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm w-100">Filtrar</button>
+                        <a href="{{ url_for('listar_receitas') }}" class="btn btn-outline-secondary btn-sm w-100">Limpar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <div class="card shadow">
             <div class="card-body p-0">
                 <table class="table table-striped table-hover mb-0">
@@ -45,6 +73,7 @@
                             </td>
                             <td>
                                 <a href="{{ url_for('editar_receita', id=r[0]) }}" class="btn btn-warning btn-sm">Editar</a>
+                                <a href="{{ url_for('exportar_receita_pdf', id=r[0]) }}" class="btn btn-info btn-sm text-white">PDF</a>
                                 <form method="POST" action="{{ url_for('deletar_receita', id=r[0]) }}" style="display:inline;">
                                     <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Deseja deletar?')">Deletar</button>
                                 </form>
