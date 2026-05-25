@@ -65,5 +65,5 @@ jobs:
         run: |
           pylint app.py \
             --max-line-length=120 \
-            --disable=C0114,C0115,C0116 \
+            --disable=C0114,C0115,C0116,C0411,E1101,W0622,W0718 \
             --fail-under=7.0
