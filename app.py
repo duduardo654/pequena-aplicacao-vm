@@ -13,9 +13,9 @@ import io
 app = Flask(__name__)
 app.secret_key = 'abc123'
 
-EMAIL_REMETENTE = 'eduardo.secco@universo.univates.br'
+EMAIL_REMETENTE = 'teste@gmail.com'
 EMAIL_SENHA_APP = 'ndcu llrc zupc loyn'
-EMAIL_DESTINATARIO = 'eduardo.secco@universo.univates.br'
+EMAIL_DESTINATARIO = 'teste@gmail.com'
 
 
 def get_connection():
@@ -254,4 +254,3 @@ def exportar_receita_pdf(id):
 
 if __name__ == '__main__':
     app.run(debug=True)
-    
