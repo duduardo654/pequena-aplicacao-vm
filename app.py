@@ -254,3 +254,4 @@ def exportar_receita_pdf(id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+    
