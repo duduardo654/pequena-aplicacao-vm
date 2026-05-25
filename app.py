@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_file
-import psycopg2 as psycopg
+import psycopg
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -17,14 +17,16 @@ EMAIL_REMETENTE = 'eduardo.secco@universo.univates.br'
 EMAIL_SENHA_APP = 'ndcu llrc zupc loyn'
 EMAIL_DESTINATARIO = 'eduardo.secco@universo.univates.br'
 
+
 def get_connection():
-    return psycopg2.connect(
+    return psycopg.connect(
         host='localhost',
         port=5432,
         dbname='db_manager_conf',
         user='postgres',
         password='postgres123'
     )
+
 
 def enviar_email(assunto, corpo):
     try:
@@ -39,9 +41,11 @@ def enviar_email(assunto, corpo):
     except Exception as e:
         print(f'Erro ao enviar email: {e}')
 
+
 @app.route('/')
 def index():
     return redirect(url_for('login'))
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -51,21 +55,25 @@ def login():
         senha = request.form['senha']
         conn = get_connection()
         cur = conn.cursor()
-        cur.execute("SELECT * FROM usuario WHERE login = %s AND senha = %s AND situacao = 'a'", (login_input, senha))
+        cur.execute(
+            "SELECT * FROM usuario WHERE login = %s AND senha = %s AND situacao = 'a'",
+            (login_input, senha)
+        )
         usuario = cur.fetchone()
         cur.close()
         conn.close()
         if usuario:
             session['usuario'] = login_input
             return redirect(url_for('listar_receitas'))
-        else:
-            erro = 'Login ou senha invalidos.'
+        erro = 'Login ou senha invalidos.'
     return render_template('login.html', erro=erro)
+
 
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
+
 
 @app.route('/receitas')
 def listar_receitas():
@@ -101,6 +109,7 @@ def listar_receitas():
     return render_template('receitas.html', receitas=receitas,
                            data_inicio=data_inicio, data_fim=data_fim, tipo=tipo)
 
+
 @app.route('/receitas/nova', methods=['GET', 'POST'])
 def nova_receita():
     if 'usuario' not in session:
@@ -114,7 +123,8 @@ def nova_receita():
         conn = get_connection()
         cur = conn.cursor()
         cur.execute(
-            "INSERT INTO receita (nome, descricao, data_registro, custo, tipo_receita) VALUES (%s, %s, %s, %s, %s)",
+            "INSERT INTO receita (nome, descricao, data_registro, custo, tipo_receita)"
+            " VALUES (%s, %s, %s, %s, %s)",
             (nome, descricao, data_registro, custo, tipo_receita)
         )
         conn.commit()
@@ -123,10 +133,12 @@ def nova_receita():
         tipo_label = 'Doce' if tipo_receita == 'd' else 'Salgado'
         enviar_email(
             f'Nova receita cadastrada: {nome}',
-            f'Uma nova receita foi cadastrada.\n\nNome: {nome}\nTipo: {tipo_label}\nCusto: R$ {custo}\nData: {data_registro}\nDescricao: {descricao}'
+            f'Nome: {nome}\nTipo: {tipo_label}\nCusto: R$ {custo}\n'
+            f'Data: {data_registro}\nDescricao: {descricao}'
         )
         return redirect(url_for('listar_receitas'))
     return render_template('form_receita.html', receita=None)
+
 
 @app.route('/receitas/editar/<int:id>', methods=['GET', 'POST'])
 def editar_receita(id):
@@ -141,7 +153,8 @@ def editar_receita(id):
         custo = request.form['custo']
         tipo_receita = request.form['tipo_receita']
         cur.execute(
-            "UPDATE receita SET nome=%s, descricao=%s, data_registro=%s, custo=%s, tipo_receita=%s WHERE id=%s",
+            "UPDATE receita SET nome=%s, descricao=%s, data_registro=%s,"
+            " custo=%s, tipo_receita=%s WHERE id=%s",
             (nome, descricao, data_registro, custo, tipo_receita, id)
         )
         conn.commit()
@@ -150,14 +163,19 @@ def editar_receita(id):
         tipo_label = 'Doce' if tipo_receita == 'd' else 'Salgado'
         enviar_email(
             f'Receita atualizada: {nome}',
-            f'Uma receita foi atualizada.\n\nNome: {nome}\nTipo: {tipo_label}\nCusto: R$ {custo}\nData: {data_registro}\nDescricao: {descricao}'
+            f'Nome: {nome}\nTipo: {tipo_label}\nCusto: R$ {custo}\n'
+            f'Data: {data_registro}\nDescricao: {descricao}'
         )
         return redirect(url_for('listar_receitas'))
-    cur.execute("SELECT id, nome, descricao, data_registro, custo, tipo_receita FROM receita WHERE id = %s", (id,))
+    cur.execute(
+        "SELECT id, nome, descricao, data_registro, custo, tipo_receita FROM receita WHERE id = %s",
+        (id,)
+    )
     receita = cur.fetchone()
     cur.close()
     conn.close()
     return render_template('form_receita.html', receita=receita)
+
 
 @app.route('/receitas/deletar/<int:id>', methods=['POST'])
 def deletar_receita(id):
@@ -171,6 +189,7 @@ def deletar_receita(id):
     conn.close()
     return redirect(url_for('listar_receitas'))
 
+
 @app.route('/receitas/exportar/<int:id>')
 def exportar_receita_pdf(id):
     if 'usuario' not in session:
@@ -178,7 +197,10 @@ def exportar_receita_pdf(id):
 
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT id, nome, descricao, data_registro, custo, tipo_receita FROM receita WHERE id = %s", (id,))
+    cur.execute(
+        "SELECT id, nome, descricao, data_registro, custo, tipo_receita FROM receita WHERE id = %s",
+        (id,)
+    )
     r = cur.fetchone()
     cur.close()
     conn.close()
@@ -193,8 +215,6 @@ def exportar_receita_pdf(id):
 
     styles = getSampleStyleSheet()
     titulo = ParagraphStyle('titulo', parent=styles['Title'], fontSize=18, spaceAfter=20)
-    label = ParagraphStyle('label', parent=styles['Normal'], fontSize=10, textColor=colors.HexColor('#555555'))
-    valor = ParagraphStyle('valor', parent=styles['Normal'], fontSize=12, spaceAfter=10)
 
     tipo_label = 'Doce' if r[5] == 'd' else 'Salgado'
 
@@ -230,6 +250,7 @@ def exportar_receita_pdf(id):
     return send_file(buffer, as_attachment=True,
                      download_name=f'receita_{id}.pdf',
                      mimetype='application/pdf')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

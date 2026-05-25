@@ -1,0 +1,69 @@
+name: Pipeline CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  testes:
+    name: Testes Automatizados
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependencias
+        run: |
+          pip install flask psycopg[binary] reportlab pytest pytest-cov
+
+      - name: Rodar testes com estatisticas
+        run: |
+          pytest test_app.py -v --tb=short \
+            --cov=app \
+            --cov-report=term-missing \
+            --cov-report=html:coverage_report
+
+      - name: Publicar relatorio de cobertura
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage_report/
+
+  qualidade:
+    name: Qualidade de Codigo
+    runs-on: ubuntu-latest
+    needs: testes
+
+    steps:
+      - name: Checkout do repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar ferramentas de qualidade
+        run: |
+          pip install flake8 pylint flask psycopg[binary] reportlab
+
+      - name: Rodar flake8
+        run: |
+          flake8 app.py --max-line-length=120 --format=default
+
+      - name: Rodar pylint
+        run: |
+          pylint app.py \
+            --max-line-length=120 \
+            --disable=C0114,C0115,C0116 \
+            --fail-under=7.0
