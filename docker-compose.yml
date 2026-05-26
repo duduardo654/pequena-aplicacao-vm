@@ -1,0 +1,75 @@
+services:
+
+  db_homolog:
+    image: postgres:16
+    container_name: db_homolog
+    environment:
+      POSTGRES_DB: db_homolog
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    volumes:
+      - pgdata_homolog:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - homolog_net
+
+  app_homolog:
+    build: .
+    container_name: app_homolog
+    ports:
+      - "5001:5000"
+    environment:
+      DB_HOST: db_homolog
+      DB_PORT: 5432
+      DB_NAME: db_homolog
+      DB_USER: postgres
+      DB_PASSWORD: postgres123
+      SECRET_KEY: homolog_secret
+      EMAIL_REMETENTE: eduardo.secco@universo.univates.br
+      EMAIL_SENHA_APP: ndcu llrc zupc loyn
+      EMAIL_DESTINATARIO: eduardo.secco@universo.univates.br
+    depends_on:
+      - db_homolog
+    networks:
+      - homolog_net
+
+  db_prod:
+    image: postgres:16
+    container_name: db_prod
+    environment:
+      POSTGRES_DB: db_prod
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - prod_net
+
+  app_prod:
+    build: .
+    container_name: app_prod
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: db_prod
+      DB_PORT: 5432
+      DB_NAME: db_prod
+      DB_USER: postgres
+      DB_PASSWORD: postgres123
+      SECRET_KEY: prod_secret
+      EMAIL_REMETENTE: eduardo.secco@universo.univates.br
+      EMAIL_SENHA_APP: ndcu llrc zupc loyn
+      EMAIL_DESTINATARIO: eduardo.secco@universo.univates.br
+    depends_on:
+      - db_prod
+    networks:
+      - prod_net
+
+volumes:
+  pgdata_homolog:
+  pgdata_prod:
+
+networks:
+  homolog_net:
+  prod_net:
