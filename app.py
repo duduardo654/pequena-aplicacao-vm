@@ -3,7 +3,7 @@ import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
- 
+
 import psycopg
 from flask import Flask, render_template, request, redirect, url_for, session, send_file
 from reportlab.lib import colors
@@ -11,15 +11,15 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
- 
+
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'abc123')
- 
+
 EMAIL_REMETENTE = os.environ.get('EMAIL_REMETENTE', '')
 EMAIL_SENHA_APP = os.environ.get('EMAIL_SENHA_APP', '')
 EMAIL_DESTINATARIO = os.environ.get('EMAIL_DESTINATARIO', '')
- 
- 
+
+
 def get_connection():
     return psycopg.connect(
         host=os.environ.get('DB_HOST', 'localhost'),
@@ -28,8 +28,8 @@ def get_connection():
         user=os.environ.get('DB_USER', 'postgres'),
         password=os.environ.get('DB_PASSWORD', '')
     )
- 
- 
+
+
 def enviar_email(assunto, corpo):
     try:
         msg = MIMEMultipart()
@@ -42,13 +42,13 @@ def enviar_email(assunto, corpo):
             smtp.send_message(msg)
     except Exception as e:
         print(f'Erro ao enviar email: {e}')
- 
- 
+
+
 @app.route('/')
 def index():
     return redirect(url_for('login'))
- 
- 
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     erro = None
@@ -69,26 +69,26 @@ def login():
             return redirect(url_for('listar_receitas'))
         erro = 'Login ou senha invalidos.'
     return render_template('login.html', erro=erro)
- 
- 
+
+
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
- 
- 
+
+
 @app.route('/receitas')
 def listar_receitas():
     if 'usuario' not in session:
         return redirect(url_for('login'))
- 
+
     data_inicio = request.args.get('data_inicio', '')
     data_fim = request.args.get('data_fim', '')
     tipo = request.args.get('tipo', '')
- 
+
     query = "SELECT id, nome, descricao, data_registro, custo, tipo_receita FROM receita WHERE 1=1"
     params = []
- 
+
     if data_inicio:
         query += " AND data_registro >= %s"
         params.append(data_inicio)
@@ -98,20 +98,20 @@ def listar_receitas():
     if tipo in ('s', 'd'):
         query += " AND tipo_receita = %s"
         params.append(tipo)
- 
+
     query += " ORDER BY id"
- 
+
     conn = get_connection()
     cur = conn.cursor()
     cur.execute(query, params)
     receitas = cur.fetchall()
     cur.close()
     conn.close()
- 
+
     return render_template('receitas.html', receitas=receitas,
                            data_inicio=data_inicio, data_fim=data_fim, tipo=tipo)
- 
- 
+
+
 @app.route('/receitas/nova', methods=['GET', 'POST'])
 def nova_receita():
     if 'usuario' not in session:
@@ -140,8 +140,8 @@ def nova_receita():
         )
         return redirect(url_for('listar_receitas'))
     return render_template('form_receita.html', receita=None)
- 
- 
+
+
 @app.route('/receitas/editar/<int:receita_id>', methods=['GET', 'POST'])
 def editar_receita(receita_id):
     if 'usuario' not in session:
@@ -177,8 +177,8 @@ def editar_receita(receita_id):
     cur.close()
     conn.close()
     return render_template('form_receita.html', receita=receita)
- 
- 
+
+
 @app.route('/receitas/deletar/<int:receita_id>', methods=['POST'])
 def deletar_receita(receita_id):
     if 'usuario' not in session:
@@ -190,13 +190,13 @@ def deletar_receita(receita_id):
     cur.close()
     conn.close()
     return redirect(url_for('listar_receitas'))
- 
- 
+
+
 @app.route('/receitas/exportar/<int:receita_id>')
 def exportar_receita_pdf(receita_id):
     if 'usuario' not in session:
         return redirect(url_for('login'))
- 
+
     conn = get_connection()
     cur = conn.cursor()
     cur.execute(
@@ -206,23 +206,23 @@ def exportar_receita_pdf(receita_id):
     r = cur.fetchone()
     cur.close()
     conn.close()
- 
+
     if not r:
         return 'Receita nao encontrada', 404
- 
+
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4,
                             rightMargin=2*cm, leftMargin=2*cm,
                             topMargin=2*cm, bottomMargin=2*cm)
- 
+
     styles = getSampleStyleSheet()
     titulo = ParagraphStyle('titulo', parent=styles['Title'], fontSize=18, spaceAfter=20)
     tipo_label = 'Doce' if r[5] == 'd' else 'Salgado'
- 
+
     story = []
     story.append(Paragraph(f'Receita: {r[1]}', titulo))
     story.append(Spacer(1, 0.3*cm))
- 
+
     dados = [
         ['Campo', 'Valor'],
         ['Nome', r[1]],
@@ -246,12 +246,12 @@ def exportar_receita_pdf(receita_id):
     ]))
     story.append(t)
     doc.build(story)
- 
+
     buffer.seek(0)
     return send_file(buffer, as_attachment=True,
                      download_name=f'receita_{receita_id}.pdf',
                      mimetype='application/pdf')
- 
- 
+
+
 if __name__ == '__main__':
     app.run(debug=True)
