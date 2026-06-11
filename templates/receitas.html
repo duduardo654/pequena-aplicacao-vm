@@ -73,8 +73,8 @@
                             </td>
                             <td>
                                 <a href="{{ url_for('editar_receita', receita_id=r[0]) }}" class="btn btn-warning btn-sm">Editar</a>
-                                <a href="{{ url_for('exportar_receita_pdf', id=r[0]) }}" class="btn btn-info btn-sm text-white">PDF</a>
-                                <form method="POST" action="{{ url_for('deletar_receita', id=r[0]) }}" style="display:inline;">
+                                <a href="{{ url_for('exportar_receita_pdf', receita_id=r[0]) }}" class="btn btn-info btn-sm text-white">PDF</a>
+                                <form method="POST" action="{{ url_for('deletar_receita', receita_id=r[0]) }}" style="display:inline;">
                                     <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Deseja deletar?')">Deletar</button>
                                 </form>
                             </td>
