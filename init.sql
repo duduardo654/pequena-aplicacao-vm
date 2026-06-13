@@ -15,9 +15,6 @@ CREATE TABLE IF NOT EXISTS usuario (
     situacao CHAR(1) NOT NULL DEFAULT 'a' CHECK (situacao IN ('a', 'i'))
 );
 
-CREATE TABLE IF NOT EXISTS 
-(ID SERIAL, tipo VARCHAR, nome VARCHAR);
-
 INSERT INTO receita (nome, descricao, data_registro, custo, tipo_receita) VALUES
 ('Coxinha de Frango',      'Massa de batata recheada com frango desfiado e catupiry',  '2026-01-10', 2.50,  's'),
 ('Brigadeiro',             'Doce de chocolate com granulado, classico brasileiro',      '2026-01-12', 1.20,  'd'),
@@ -32,3 +29,7 @@ INSERT INTO receita (nome, descricao, data_registro, custo, tipo_receita) VALUES
 
 INSERT INTO usuario (nome, login, senha, situacao) VALUES
 ('Administrador', 'admin', 'admin123', 'a');
+
+CREATE TABLE IF NOT EXISTS categpria
+(ID SERIAL, tipo VARCHAR, nome VARCHAR);
+
