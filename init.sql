@@ -31,4 +31,4 @@ INSERT INTO usuario (nome, login, senha, situacao) VALUES
 ('Administrador', 'admin', 'admin123', 'a');
 
 CREATE TABLE IF NOT EXISTS 
-(ID SERIAL PRIMARY KEY, tipo VARCHAR, nome VARCHAR);
+(ID SERIAL, tipo VARCHAR, nome VARCHAR);
