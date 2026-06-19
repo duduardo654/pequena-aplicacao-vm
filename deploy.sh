@@ -14,35 +14,38 @@ read -p "Escolha uma opcao [1-4]: " opcao
 case $opcao in
   1)
     echo ""
-    read -p "Recriar o banco de Homologacao do zero (perde os dados)? [s/N]: " recriar_db
+    read -p "Recriar o banco de Homologacao? [s/N]: " recriar_db
     echo "Derrubando Homologacao..."
     sudo docker compose stop app_homolog db_homolog
     sudo docker compose rm -f app_homolog db_homolog
     if [[ "$recriar_db" == "s" || "$recriar_db" == "S" ]]; then
       sudo docker volume rm pequena-aplicacao-vm_pgdata_homolog
+      sudo docker compose down db_homolog -v --rmi all 
     fi
     echo "Subindo Homologacao..."
-    sudo docker compose up -d --build app_homolog db_homolog
+    sudo docker compose up app_homolog db_homolog -d --build
     ;;
   2)
     echo ""
-    read -p "Recriar o banco de Producao do zero (perde os dados)? [s/N]: " recriar_db
+    read -p "Recriar o banco de Producao? [s/N]: " recriar_db
     echo "Derrubando Producao..."
     sudo docker compose stop app_prod db_prod
     sudo docker compose rm -f app_prod db_prod
     if [[ "$recriar_db" == "s" || "$recriar_db" == "S" ]]; then
       sudo docker volume rm pequena-aplicacao-vm_pgdata_prod
+      sudo docker compose down db_prod -v --rmi all
     fi
     echo "Subindo Producao..."
-    sudo docker compose up -d --build app_prod db_prod
+    sudo docker compose up app_prod db_prod -d --build
     ;;
   3)
     echo ""
-    read -p "Recriar AMBOS os bancos do zero (perde os dados)? [s/N]: " recriar_db
+    read -p "Recriar AMBOS os bancos? [s/N]: " recriar_db
     echo "Derrubando Homologacao e Producao..."
     sudo docker compose down
     if [[ "$recriar_db" == "s" || "$recriar_db" == "S" ]]; then
       sudo docker volume rm pequena-aplicacao-vm_pgdata_homolog pequena-aplicacao-vm_pgdata_prod
+      sudo docker compose down db_homolog db_prod -v --rmi all 
     fi
     echo "Subindo Homologacao e Producao..."
     sudo docker compose up -d --build
