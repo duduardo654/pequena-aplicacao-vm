@@ -19,7 +19,6 @@ case $opcao in
     sudo docker compose stop app_homolog db_homolog
     sudo docker compose rm -f app_homolog db_homolog
     if [[ "$recriar_db" == "s" || "$recriar_db" == "S" ]]; then
-      sudo docker volume rm pequena-aplicacao-vm_pgdata_homolog
       sudo docker compose down db_homolog -v --rmi all 
     fi
     echo "Subindo Homologacao..."
@@ -32,7 +31,6 @@ case $opcao in
     sudo docker compose stop app_prod db_prod
     sudo docker compose rm -f app_prod db_prod
     if [[ "$recriar_db" == "s" || "$recriar_db" == "S" ]]; then
-      sudo docker volume rm pequena-aplicacao-vm_pgdata_prod
       sudo docker compose down db_prod -v --rmi all
     fi
     echo "Subindo Producao..."
@@ -44,7 +42,6 @@ case $opcao in
     echo "Derrubando Homologacao e Producao..."
     sudo docker compose down
     if [[ "$recriar_db" == "s" || "$recriar_db" == "S" ]]; then
-      sudo docker volume rm pequena-aplicacao-vm_pgdata_homolog pequena-aplicacao-vm_pgdata_prod
       sudo docker compose down db_homolog db_prod -v --rmi all 
     fi
     echo "Subindo Homologacao e Producao..."
