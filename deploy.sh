@@ -11,41 +11,41 @@ echo "3) Ambos"
 echo "4) Cancelar"
 read -p "Escolha uma opcao [1-4]: " opcao
 
+atualizar() {
+  APP=$1
+  DB=$2
+  DB_NAME=$3
+
+  echo ""
+  echo "--- Backup de $DB_NAME ---"
+  sudo docker exec -t "$DB" pg_dump -U postgres "$DB_NAME" > "backup_${DB_NAME}.sql"
+
+  echo "--- Derrubando $APP e $DB ---"
+  sudo docker compose stop "$APP" "$DB"
+  sudo docker compose rm -f "$APP" "$DB"
+
+  echo "--- Subindo $APP e $DB com estrutura nova ---"
+  sudo docker compose up -d --build "$APP" "$DB"
+
+  echo "--- Aguardando banco iniciar ---"
+  sleep 8
+
+  echo "--- Restaurando dados em $DB_NAME ---"
+  sudo docker exec -i "$DB" psql -U postgres -d "$DB_NAME" < "backup_${DB_NAME}.sql"
+
+  echo "--- $DB_NAME atualizado com sucesso ---"
+}
+
 case $opcao in
   1)
-    echo ""
-    read -p "Recriar o banco de Homologacao? [s/N]: " recriar_db
-    echo "Derrubando Homologacao..."
-    sudo docker compose stop app_homolog db_homolog
-    sudo docker compose rm -f app_homolog db_homolog
-    if [[ "$recriar_db" == "s" || "$recriar_db" == "S" ]]; then
-      sudo docker compose down db_homolog -v --rmi all 
-    fi
-    echo "Subindo Homologacao..."
-    sudo docker compose up app_homolog db_homolog -d --build
+    atualizar app_homolog db_homolog db_homolog
     ;;
   2)
-    echo ""
-    read -p "Recriar o banco de Producao? [s/N]: " recriar_db
-    echo "Derrubando Producao..."
-    sudo docker compose stop app_prod db_prod
-    sudo docker compose rm -f app_prod db_prod
-    if [[ "$recriar_db" == "s" || "$recriar_db" == "S" ]]; then
-      sudo docker compose down db_prod -v --rmi all
-    fi
-    echo "Subindo Producao..."
-    sudo docker compose up app_prod db_prod -d --build
+    atualizar app_prod db_prod db_prod
     ;;
   3)
-    echo ""
-    read -p "Recriar AMBOS os bancos? [s/N]: " recriar_db
-    echo "Derrubando Homologacao e Producao..."
-    sudo docker compose down
-    if [[ "$recriar_db" == "s" || "$recriar_db" == "S" ]]; then
-      sudo docker compose down db_homolog db_prod -v --rmi all 
-    fi
-    echo "Subindo Homologacao e Producao..."
-    sudo docker compose up -d --build
+    atualizar app_homolog db_homolog db_homolog
+    atualizar app_prod db_prod db_prod
     ;;
   4)
     echo "Operacao cancelada."
