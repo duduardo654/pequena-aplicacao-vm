@@ -29,3 +29,7 @@ INSERT INTO receita (nome, descricao, data_registro, custo, tipo_receita) VALUES
 
 INSERT INTO usuario (nome, login, senha, situacao) VALUES
 ('Administrador', 'admin', 'admin123', 'a');
+
+CREATE TABLE IF NOT EXISTS categoria(
+    id SERIAL, descricao VARCHAR
+);
